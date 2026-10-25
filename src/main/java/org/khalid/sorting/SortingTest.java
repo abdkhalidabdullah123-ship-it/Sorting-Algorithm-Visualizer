@@ -30,5 +30,17 @@ public class SortingTest {
         System.out.println(Arrays.toString(selection.getArray()));
         System.out.println("Insertion Sort");
         System.out.println(Arrays.toString(insertion.getArray()));
+
+        // Merge Sort
+         SortingAlgorithms merge = new SortingAlgorithms(original);
+         merge.mergeSort();
+        // Quick Sort
+        SortingAlgorithms Quick = new SortingAlgorithms(original);
+        Quick.quickSort();
+
+        System.out.println("Merge Sort");
+        System.out.println(Arrays.toString(merge.getArray()));
+        System.out.println("Quick Sort");
+        System.out.println(Arrays.toString(Quick.getArray()));
     }
 }

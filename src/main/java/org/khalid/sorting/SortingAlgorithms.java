@@ -70,7 +70,7 @@ public class SortingAlgorithms {
         mergeSort(0, arr.length - 1);
     }
 
-    public void merge(int s , int e , int mid){
+    private void merge(int s , int e , int mid){
         int leftArrLen = mid - s + 1;
         int rightArrLen = e - mid;
         int leftArr[] = new int[leftArrLen];
@@ -124,7 +124,7 @@ public class SortingAlgorithms {
         }
     }
 
-    private void mergeSort(int l , int r){
+    public void mergeSort(int l , int r){
         int s = l;
         int e = r;
 
@@ -143,6 +143,76 @@ public class SortingAlgorithms {
 
         // Merge Both Halves
         merge(s, e, mid);
+    }
+    //-------------Quick Sort-------//
+
+    // Main method to start Quick Sort
+    public void quickSort() {
+        quickSort(0, arr.length - 1);
+    }
+    //Method Overloading Different Parameters
+    private void quickSort(int s , int e){
+        // s is 0 index
+        // e is arr.length - 1;
+
+        // Base Case
+        if (s >= e){
+            return;
+        }
+
+        int pivotIndex = partition(s , e);
+
+        // Give left part to recursion to sort
+        quickSort(s , pivotIndex-1);
+
+        // Give right part to recursion to sort
+        quickSort(pivotIndex+1 , e);
+
+    }
+
+    private int partition(int s , int e){
+        int pivotElement = arr[s];
+        int count = 0;
+
+        for (int i = s+1; i <= e; i++){
+            if (arr[i] <= pivotElement){
+                count++;
+            }
+        }
+
+        // Place Pivot Element at its correct Position
+        int correctPosition = s + count;
+
+        // Swap pivot Element  with element that is present at its correct position
+        int temp = arr[correctPosition];
+        arr[correctPosition] = arr[s];
+        arr[s] = temp;
+
+        // Ensure that the left of pivot element have smaller element and right of pivot element have greater element that pivot element
+
+        int i = s;
+        int j = e;
+
+        while(i < correctPosition && j > correctPosition){
+
+            while (arr[i] <= pivotElement){
+                i++;
+            }
+
+            while(arr[j] > pivotElement){
+                j--;
+            }
+
+            if (i < correctPosition && j > correctPosition){
+                int temp1 = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp1;
+                i++;
+                j--;
+            }
+        }
+
+        return correctPosition;
     }
 
 
