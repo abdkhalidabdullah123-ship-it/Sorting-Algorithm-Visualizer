@@ -347,5 +347,5 @@ private int partition(int s , int e){
    // -------- Return Recorded Animation Steps --------
      public java.util.List<SortingStep> getSteps() {
      return new java.util.ArrayList<>(steps);
-}
+ }
 }
