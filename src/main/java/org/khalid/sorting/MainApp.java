@@ -25,7 +25,7 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
     // Bar colors remain in Java because they depend on sorting events.
-    private static final String BLUE = "#60A5FA";
+    private static final String UNSORTED_RED = "#EF4444";
 
     // ---------- Array Data ----------
     private final Random random = new Random();
@@ -44,7 +44,7 @@ public class MainApp extends Application {
     private Label stepsValueLabel;
 
     // ---------- GUI Components ----------
-    private final HBox barsContainer = new HBox(4);
+    private final HBox barsContainer = new HBox(2);
 
     private StackPane chartArea;
 
@@ -88,7 +88,12 @@ public class MainApp extends Application {
                 }
                 highlightedStep = step;
                 updateStatistics(stats);
-                statusLabel.setText(message);
+                if ("Status: Sorting completed successfully!".equals(message)) {
+                statusLabel.setText("✓ Sorting Completed Successfully");
+                 }
+                    else {
+                    statusLabel.setText(message);
+                    }
                 renderBars();
             }
 
@@ -142,29 +147,38 @@ public class MainApp extends Application {
     // HEADER
     // ==========================================
 
-    private HBox createHeader() {
+    
+private StackPane createHeader() {
 
-        Label title = new Label("Sorting Visualizer");
-        title.getStyleClass().add("app-title");
+    // Main Title
+    Label title = new Label("Sorting Visualizer");
+    title.getStyleClass().add("app-title");
 
-        Label subtitle = new Label(
-                "Interactive Algorithm Learning Platform"
-        );
+    // Subtitle
+    Label subtitle = new Label(
+            "Interactive Algorithm Learning Platform"
+    );
+    subtitle.getStyleClass().add("app-subtitle");
 
-        subtitle.getStyleClass().add("app-subtitle");
+    // Center title and subtitle
+    VBox heading = new VBox(5, title, subtitle);
+    heading.setAlignment(Pos.CENTER);
 
-        VBox heading = new VBox(5, title, subtitle);
+    // Initials on the right
+    Label version = new Label("KA");
+    version.getStyleClass().add("version-badge");
 
-        Label version = new Label("JavaFX 25 • Desktop");
-        version.getStyleClass().add("version-badge");
+    // Header layout
+    StackPane header = new StackPane();
 
-        HBox header = new HBox(20, heading, version);
-        header.setAlignment(Pos.CENTER_LEFT);
+    header.getChildren().addAll(heading, version);
 
-        HBox.setHgrow(heading, Priority.ALWAYS);
+    StackPane.setAlignment(heading, Pos.CENTER);
+    StackPane.setAlignment(version, Pos.TOP_RIGHT);
 
-        return header;
-    }
+    return header;
+}
+
 
     // ==========================================
     // LEFT PANEL - CONTROLS
@@ -176,6 +190,10 @@ public class MainApp extends Application {
         controls.setPrefWidth(230);
         controls.setMinWidth(220);
         controls.getStyleClass().add("panel");
+        controls.getStyleClass().add("dark-panel");
+
+     // Center align all controls panel content
+        controls.setAlignment(Pos.TOP_CENTER);
 
         Label heading = headingLabel("Controls");
 
@@ -194,6 +212,7 @@ public class MainApp extends Application {
 
         algorithmBox.setValue("Bubble Sort");
         algorithmBox.setMaxWidth(Double.MAX_VALUE);
+        algorithmBox.getStyleClass().add("algorithm-dropdown");
 
         algorithmBox.setOnAction(event -> {
             statusLabel.setText(
@@ -206,7 +225,8 @@ public class MainApp extends Application {
 
         sizeValueLabel = smallLabel("24 Elements");
 
-        sizeSlider = new Slider(10, 40, 24);
+        sizeSlider = new Slider(10, 100, 24);
+        sizeSlider.getStyleClass().add("modern-slider");
 
         sizeSlider.valueProperty().addListener(
                 (obs, oldValue, newValue) -> {
@@ -221,7 +241,8 @@ public class MainApp extends Application {
 
         speedValueLabel = smallLabel("1.00x");
 
-        speedSlider = new Slider(0.25, 3.0, 1.0);
+        speedSlider = new Slider(0.25, 20.0, 1.0);
+        speedSlider.getStyleClass().add("modern-slider");
 
         speedSlider.valueProperty().addListener(
                 (obs, oldValue, newValue) -> {
@@ -286,6 +307,8 @@ public class MainApp extends Application {
         HBox playbackButtons = new HBox(
                 8, pauseButton, resumeButton
         );
+        HBox.setHgrow(pauseButton, Priority.ALWAYS);
+        HBox.setHgrow(resumeButton, Priority.ALWAYS);
 
         // Add everything to the left panel
         controls.getChildren().addAll(
@@ -317,13 +340,20 @@ public class MainApp extends Application {
         visualization.getStyleClass().add("panel");
         visualization.setMinWidth(0);
 
-        Label heading = headingLabel(
-                "Array Visualization"
+      Label heading = headingLabel(
+        "Visualization"
         );
 
         Label description = smallLabel(
                 "Each bar represents an array element"
         );
+
+        // Center both texts
+        heading.setMaxWidth(Double.MAX_VALUE);
+        heading.setAlignment(Pos.CENTER);
+
+        description.setMaxWidth(Double.MAX_VALUE);
+        description.setAlignment(Pos.CENTER);
 
         // Container for array bars
         barsContainer.setAlignment(Pos.BOTTOM_CENTER);
@@ -331,20 +361,27 @@ public class MainApp extends Application {
         barsContainer.setMaxHeight(280);
 
         // Chart area
-        chartArea = new StackPane(barsContainer);
+      
+            chartArea = new StackPane(barsContainer);
 
-        chartArea.setMinHeight(340);
-        chartArea.getStyleClass().add("chart-area");
+            // Allow horizontal resizing
+            chartArea.setMinWidth(0);
+            barsContainer.setMinWidth(0);
+
+            chartArea.setMinHeight(340);
+            chartArea.getStyleClass().add("chart-area");
 
         VBox.setVgrow(chartArea, Priority.ALWAYS);
 
         // Color legend
         HBox legend = new HBox(14);
+        // Center position
+        legend.setAlignment(Pos.CENTER);
 
         legend.getChildren().addAll(
-                createLegend("#60A5FA", "Normal"),
+                createLegend("#EF4444", "Unsorted"),
                 createLegend("#FBBF24", "Compare"),
-                createLegend("#F87171", "Swap"),
+                createLegend("#F8FAFC", "Swap"),
                 createLegend("#38BDF8", "Write"),
                 createLegend("#C084FC", "Pivot"),
                 createLegend("#22C55E", "Sorted")
@@ -366,11 +403,13 @@ public class MainApp extends Application {
 
     private VBox createStatistics() {
 
-        VBox statistics = new VBox(16);
+        VBox statistics = new VBox(8);
 
         statistics.setPrefWidth(190);
         statistics.setMinWidth(180);
         statistics.getStyleClass().add("panel");
+        statistics.getStyleClass().add("dark-panel");
+        statistics.setAlignment(Pos.TOP_CENTER);
 
         Label heading = headingLabel("Statistics");
 
@@ -393,20 +432,14 @@ public class MainApp extends Application {
         elementsValueLabel = valueLabel("24");
 
         statistics.getChildren().addAll(
-                heading,
-                comparisons,
-                comparisonsValueLabel,
-                swaps,
-                swapsValueLabel,
-                writes,
-                writesValueLabel,
-                pivots,
-                pivotsValueLabel,
-                steps,
-                stepsValueLabel,
-                elements,
-                elementsValueLabel
-        );
+        heading,
+        createStatCard(comparisons, comparisonsValueLabel),
+        createStatCard(swaps, swapsValueLabel),
+        createStatCard(writes, writesValueLabel),
+        createStatCard(pivots, pivotsValueLabel),
+        createStatCard(steps, stepsValueLabel),
+        createStatCard(elements, elementsValueLabel)
+       );
 
         return statistics;
     }
@@ -420,6 +453,19 @@ public class MainApp extends Application {
         statusLabel = new Label("Status: Ready");
 
         statusLabel.getStyleClass().add("status-label");
+        // Update styling whenever the status message changes
+statusLabel.textProperty().addListener((obs, oldText, newText) -> {
+
+    if ("✓ Sorting Completed Successfully".equals(newText)) {
+
+        if (!statusLabel.getStyleClass().contains("status-completed")) {
+            statusLabel.getStyleClass().add("status-completed");
+        }
+
+    } else {
+        statusLabel.getStyleClass().remove("status-completed");
+    }
+      });
 
         Label framework = smallLabel("JavaFX Desktop");
 
@@ -472,76 +518,130 @@ public class MainApp extends Application {
     // DISPLAY ARRAY AS BARS
     // ==========================================
 
-    private void renderBars() {
+    
+private void renderBars() {
 
-        if (displayedArray == null) {
-            return;
-        }
+    if (displayedArray == null || chartArea == null) {
+        return;
+    }
 
-        barsContainer.getChildren().clear();
+    // ---------- STEP 1: CLEAR OLD BARS ----------
+    barsContainer.getChildren().clear();
 
-        double availableWidth =
-                chartArea.getWidth() > 100
-                ? chartArea.getWidth() - 48
-                : 600;
+    // ---------- STEP 2: ARRAY SIZE ----------
+    int count = displayedArray.length;
 
-        double gap = 4;
+    if (count == 0) {
+        return;
+    }
 
-        double barWidth = Math.max(
-                5,
-                Math.min(
-                        22,
-                        (availableWidth -
-                        gap * (displayedArray.length - 1))
-                        / displayedArray.length
-                )
+    // ---------- STEP 3: AVAILABLE CHART WIDTH ----------
+    double availableWidth;
+
+    if (chartArea.getWidth() > 0) {
+
+        availableWidth = Math.max(
+                1.0,
+                chartArea.getWidth()
+                - chartArea.getInsets().getLeft()
+                - chartArea.getInsets().getRight()
+                - 8
         );
 
-        for (int i = 0; i < displayedArray.length; i++) {
-
-            int value = displayedArray[i];
-
-            Rectangle bar = new Rectangle(
-                    barWidth,
-                    value * 2.6
-            );
-
-            // Default color: blue
-            Color barColor = Color.web(BLUE);
-
-            // Highlight currently processed event, without changing sort logic.
-            if (highlightedStep != null) {
-                String type = highlightedStep.type;
-                boolean first = (i == highlightedStep.first);
-                boolean second = (i == highlightedStep.second);
-
-                if ("DONE".equals(type)) {
-                    barColor = Color.web("#22C55E");
-                } else if ("COMPARE".equals(type) && (first || second)) {
-                    barColor = Color.web("#FBBF24");
-                } else if ("SWAP".equals(type) && (first || second)) {
-                    barColor = Color.web("#F87171");
-                } else if ("WRITE".equals(type) && first) {
-                    barColor = Color.web("#38BDF8");
-                } else if ("PIVOT".equals(type) && first) {
-                    barColor = Color.web("#C084FC");
-                }
-            }
-
-            bar.setFill(barColor);
-            bar.setArcWidth(4);
-            bar.setArcHeight(4);
-
-            // Show index and value on mouse hover
-            Tooltip tooltip = new Tooltip(
-                    "Index: " + i +
-                    "\nValue: " + value
-            );
-
-            Tooltip.install(bar, tooltip);
-            barsContainer.getChildren().add(bar);
-        }
+    } else {
+        availableWidth = 600;
     }
+
+    // ---------- STEP 4: DYNAMIC BAR SPACING ----------
+    double gap = Math.min(
+            2.0,
+            availableWidth / (count * 5.0)
+    );
+
+    barsContainer.setSpacing(gap);
+
+    // ---------- STEP 5: DYNAMIC BAR WIDTH ----------
+    double barWidth = Math.min(
+            22.0,
+            (availableWidth - gap * (count - 1)) / count
+    );
+
+    // ---------- STEP 6: CONTAINER WIDTH ----------
+    double totalBarsWidth =
+            (barWidth * count) + (gap * (count - 1));
+
+    barsContainer.setMinWidth(0);
+    barsContainer.setPrefWidth(totalBarsWidth);
+    barsContainer.setMaxWidth(totalBarsWidth);
+
+    // ---------- STEP 7: CREATE BARS ----------
+    for (int i = 0; i < displayedArray.length; i++) {
+
+        int value = displayedArray[i];
+
+        Rectangle bar = new Rectangle(
+                barWidth,
+                value * 2.6
+        );
+
+        // Default color: Red for unsorted elements
+        Color barColor = Color.web(UNSORTED_RED);
+
+        // ---------- STEP 8: SORTING HIGHLIGHTS ----------
+        if (highlightedStep != null) {
+
+            String type = highlightedStep.type;
+
+            boolean first = (i == highlightedStep.first);
+            boolean second = (i == highlightedStep.second);
+
+            if ("DONE".equals(type)) {
+
+                barColor = Color.web("#22C55E");
+
+            } else if ("COMPARE".equals(type)
+                    && (first || second)) {
+
+                barColor = Color.web("#FBBF24");
+
+            } else if ("SWAP".equals(type)
+                    && (first || second)) {
+
+                barColor = Color.web("#F8FAFC");
+
+            } else if ("WRITE".equals(type) && first) {
+
+                barColor = Color.web("#38BDF8");
+
+            } else if ("PIVOT".equals(type) && first) {
+
+                barColor = Color.web("#C084FC");
+            }
+        }
+
+        // ---------- STEP 9: APPLY BAR STYLE ----------
+        // Apply bar colors
+        bar.setFill(barColor);
+
+        // Rounded corners
+        bar.setArcWidth(4);
+        bar.setArcHeight(4);
+
+// Apply CSS hover styling
+bar.getStyleClass().add("sorting-bar");
+
+        // ---------- STEP 10: TOOLTIP ----------
+        Tooltip tooltip = new Tooltip(
+                "Index: " + i +
+                "\nValue: " + value
+        );
+
+        Tooltip.install(bar, tooltip);
+
+        // ---------- STEP 11: ADD BAR ----------
+        barsContainer.getChildren().add(bar);
+    }
+}
 
     // ==========================================
     // CONTROLLER STATE -> BUTTON AVAILABILITY
@@ -620,6 +720,24 @@ public class MainApp extends Application {
 
         return label;
     }
+    
+private VBox createStatCard(Label label, Label value) {
+
+    // Create a card containing label and value
+    VBox card = new VBox(2, label, value);
+
+    // Center content inside the card
+    card.setAlignment(Pos.CENTER);
+
+    // Allow card to occupy available width
+    card.setMaxWidth(Double.MAX_VALUE);
+
+    // Apply CSS styling
+    card.getStyleClass().add("stat-card");
+
+    return card;
+}
+
 
     private Button createButton(
             String text, String buttonStyleClass) {

@@ -4,20 +4,20 @@
 
 /* Main background and outer padding */
 .app-root {
-    -fx-background-color: #0B1120;
+    -fx-background-color: #FFFFFF;
     -fx-padding: 18;
 }
 
 /* Header */
 .app-title {
-    -fx-font-size: 26px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
-    -fx-text-fill: #F8FAFC;
+    -fx-text-fill: #111827;
 }
 
 .app-subtitle {
-    -fx-text-fill: #94A3B8;
-    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
 }
 
 .version-badge {
@@ -32,6 +32,10 @@
     -fx-background-color: #172338;
     -fx-background-radius: 14;
     -fx-padding: 18;
+}
+/* Dark background for Controls and Statistics only */
+.dark-panel {
+    -fx-background-color: #0D0D0D;
 }
 
 .section-title {
@@ -51,11 +55,101 @@
     -fx-font-weight: bold;
 }
 
+/* ========== STATISTICS CARDS ========== */
+
+.stat-card {
+    -fx-background-color: #191919;
+    -fx-background-radius: 10;
+    -fx-border-color: #333333;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 8 6;
+}
+
+
+/* ========== ALGORITHM DROPDOWN ========== */
+
+.algorithm-dropdown {
+    -fx-background-color: #1F2937;
+    -fx-background-radius: 8;
+    -fx-border-color: #374151;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+/* Selected algorithm text */
+.algorithm-dropdown > .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F9FAFB;
+    -fx-padding: 8 12;
+}
+
+/* Dropdown arrow background */
+.algorithm-dropdown .arrow-button {
+    -fx-background-color: #1F2937;
+    -fx-background-radius: 0 8 8 0;
+}
+
+/* Dropdown arrow color */
+.algorithm-dropdown .arrow {
+    -fx-background-color: #D1D5DB;
+}
+
+/* Focus border */
+.algorithm-dropdown:focused {
+    -fx-border-color: #3B82F6;
+}
+
+/* Dropdown popup background */
+.combo-box-popup .list-view {
+    -fx-background-color: #1F2937;
+    -fx-border-color: #374151;
+    -fx-background-insets: 0;
+}
+
+/* Algorithm options */
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #1F2937;
+    -fx-text-fill: #F9FAFB;
+    -fx-padding: 10 12;
+}
+
+/* Mouse hover */
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #374151;
+}
+
+/* Currently selected option */
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: #2563EB;
+    -fx-text-fill: white;
+}
+
+
 /* Visualization panel interior */
 .chart-area {
     -fx-background-color: #0F172A;
     -fx-background-radius: 12;
     -fx-padding: 20;
+}
+/* ========== SORTING BARS ========== */
+
+.sorting-bar {
+    -fx-cursor: hand;
+}
+
+.sorting-bar:hover {
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(255, 255, 255, 0.35),
+        8,
+        0.3,
+        0,
+        0
+    );
 }
 
 /* Action buttons: original colors, padding and corners */
@@ -84,7 +178,114 @@
 }
 
 /* Bottom status message */
+/* ========== STATUS BAR ========== */
+
+/* Default status */
 .status-label {
-    -fx-text-fill: #22C55E;
+    -fx-text-fill: #A5B4C9;
     -fx-font-size: 13px;
+}
+
+/* Successful completion */
+.status-completed {
+    -fx-text-fill: #22C55E;
+    -fx-font-weight: bold;
+    -fx-background-color: #163322;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12;
+}
+/* ===== BUTTON POLISHING ===== */
+
+.action-button {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 13 16;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-opacity: 0.90;
+}
+
+.action-button:pressed {
+    -fx-opacity: 0.80;
+}
+
+.action-button:disabled {
+    -fx-opacity: 0.45;
+    -fx-cursor: default;
+}
+/* ===== TYPOGRAPHY POLISHING ===== */
+
+.app-root {
+    -fx-font-family: "Segoe UI";
+}
+
+.app-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F8FAFC;
+}
+
+.app-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #94A3B8;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F8FAFC;
+}
+
+.small-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #A5B4C9;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F8FAFC;
+}
+
+.status-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+}
+/* ===== HEADER TEXT FIX ===== */
+
+.app-root .app-title {
+    -fx-text-fill: #111827;
+}
+
+.app-root .app-subtitle {
+    -fx-text-fill: #475569;
+}
+
+/* ========== ARRAY SIZE & SPEED SLIDERS ========== */
+
+.modern-slider .track {
+    -fx-background-color: #374151;
+    -fx-background-radius: 10;
+    -fx-pref-height: 6;
+}
+
+.modern-slider .thumb {
+    -fx-background-color: #3B82F6;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-cursor: hand;
+}
+
+.modern-slider .thumb:hover {
+    -fx-background-color: #60A5FA;
+}
+
+.modern-slider .thumb:pressed {
+    -fx-background-color: #2563EB;
 }
