@@ -91,11 +91,10 @@ public class MainApp extends Application {
                 highlightedStep = step;
                 updateStatistics(stats);
                 if ("Status: Sorting completed successfully!".equals(message)) {
-                statusLabel.setText("✓ Sorting Completed Successfully");
-                 }
-                    else {
+                    statusLabel.setText("✓ Sorting Completed Successfully");
+                } else {
                     statusLabel.setText(message);
-                    }
+                }
                 renderBars();
             }
 
@@ -458,19 +457,16 @@ private StackPane createHeader() {
         statusLabel = new Label("Status: Ready");
 
         statusLabel.getStyleClass().add("status-label");
-        // Update styling whenever the status message changes
-statusLabel.textProperty().addListener((obs, oldText, newText) -> {
-
-    if ("✓ Sorting Completed Successfully".equals(newText)) {
-
-        if (!statusLabel.getStyleClass().contains("status-completed")) {
-            statusLabel.getStyleClass().add("status-completed");
-        }
-
-    } else {
-        statusLabel.getStyleClass().remove("status-completed");
-    }
-      });
+        // Update styling whenever the status message changes.
+        statusLabel.textProperty().addListener((obs, oldText, newText) -> {
+            if ("✓ Sorting Completed Successfully".equals(newText)) {
+                if (!statusLabel.getStyleClass().contains("status-completed")) {
+                    statusLabel.getStyleClass().add("status-completed");
+                }
+            } else {
+                statusLabel.getStyleClass().remove("status-completed");
+            }
+        });
 
         Label framework = smallLabel("JavaFX Desktop");
 

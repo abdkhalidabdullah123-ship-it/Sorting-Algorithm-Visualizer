@@ -1,11 +1,11 @@
-/* Sorting Visualizer - styles migrated from MainApp.java.
-   Intentionally preserves the existing appearance: no new theme, hover
-   effects, spacing changes, or control customizations are introduced. */
+/* Sorting Visualizer — consolidated JavaFX styles.
+   The existing theme, spacing, colors, and hover behavior are preserved. */
 
 /* Main background and outer padding */
 .app-root {
     -fx-background-color: #FFFFFF;
     -fx-padding: 18;
+    -fx-font-family: "Segoe UI";
 }
 
 /* Header */
@@ -40,18 +40,18 @@
 
 .section-title {
     -fx-text-fill: #F8FAFC;
-    -fx-font-size: 17px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 
 .small-label {
-    -fx-text-fill: #94A3B8;
-    -fx-font-size: 12px;
+    -fx-text-fill: #A5B4C9;
+    -fx-font-size: 13px;
 }
 
 .stat-value {
     -fx-text-fill: #F8FAFC;
-    -fx-font-size: 23px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
@@ -65,7 +65,6 @@
     -fx-border-width: 1;
     -fx-padding: 8 6;
 }
-
 
 /* ========== ALGORITHM DROPDOWN ========== */
 
@@ -128,7 +127,6 @@
     -fx-text-fill: white;
 }
 
-
 /* Visualization panel interior */
 .chart-area {
     -fx-background-color: #0F172A;
@@ -152,12 +150,15 @@
     );
 }
 
-/* Action buttons: original colors, padding and corners */
+/* Action buttons */
 .action-button {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 11;
+    -fx-background-radius: 10;
+    -fx-padding: 13 16;
+    -fx-cursor: hand;
 }
 
 .generate-button {
@@ -177,35 +178,21 @@
     -fx-background-color: #475569;
 }
 
-/* Bottom status message */
 /* ========== STATUS BAR ========== */
-
-/* Default status */
 .status-label {
     -fx-text-fill: #A5B4C9;
     -fx-font-size: 13px;
+    -fx-font-weight: normal;
 }
 
 /* Successful completion */
 .status-completed {
     -fx-text-fill: #22C55E;
-    -fx-font-weight: bold;
     -fx-background-color: #163322;
     -fx-background-radius: 8;
     -fx-padding: 6 12;
 }
-/* ===== BUTTON POLISHING ===== */
-
-.action-button {
-    -fx-font-family: "Segoe UI";
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
-    -fx-background-radius: 10;
-    -fx-padding: 13 16;
-    -fx-cursor: hand;
-}
-
+/* Button interactions */
 .action-button:hover {
     -fx-opacity: 0.90;
 }
@@ -218,54 +205,6 @@
     -fx-opacity: 0.45;
     -fx-cursor: default;
 }
-/* ===== TYPOGRAPHY POLISHING ===== */
-
-.app-root {
-    -fx-font-family: "Segoe UI";
-}
-
-.app-title {
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #F8FAFC;
-}
-
-.app-subtitle {
-    -fx-font-size: 13px;
-    -fx-text-fill: #94A3B8;
-}
-
-.section-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #F8FAFC;
-}
-
-.small-label {
-    -fx-font-size: 13px;
-    -fx-text-fill: #A5B4C9;
-}
-
-.stat-value {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #F8FAFC;
-}
-
-.status-label {
-    -fx-font-size: 13px;
-    -fx-font-weight: normal;
-}
-/* ===== HEADER TEXT FIX ===== */
-
-.app-root .app-title {
-    -fx-text-fill: #111827;
-}
-
-.app-root .app-subtitle {
-    -fx-text-fill: #475569;
-}
-
 /* ========== ARRAY SIZE & SPEED SLIDERS ========== */
 
 .modern-slider .track {
