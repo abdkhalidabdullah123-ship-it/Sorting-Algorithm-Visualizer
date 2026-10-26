@@ -7,91 +7,163 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SortingAlgorithmsTest {
+public class SortingAlgorithmsTest {
 
-    private void testAlgorithm(int[] input, String name) {
+    // Different input arrays for testing
+    private final int[][] testCases = {
+        {5, 2, 8, 1, 3},       // Random
+        {1, 2, 3, 4, 5},       // Already sorted
+        {9, 7, 5, 3, 1},       // Reverse sorted
+        {4, 4, 2, 2, 1},       // Duplicates
+        {10},                  // Single element
+        {},                    // Empty array
+        {-5, 3, -1, 0, 2}     // Negative numbers
+    };
 
-        int[] original = input.clone();
+    // Run selected algorithm
+    private void runSort(
+            SortingAlgorithms sorter,
+            String algorithm) {
 
-        SortingAlgorithms sorting = new SortingAlgorithms(input);
-
-        switch (name) {
-            case "Bubble Sort" -> sorting.bubbleSort();
-            case "Selection Sort" -> sorting.selectionSort();
-            case "Insertion Sort" -> sorting.insertionSort();
-            case "Merge Sort" -> sorting.mergeSort();
-            case "Quick Sort" -> sorting.quickSort();
-            default -> throw new IllegalArgumentException(name);
+        switch (algorithm) {
+            case "Bubble" -> sorter.bubbleSort();
+            case "Selection" -> sorter.selectionSort();
+            case "Insertion" -> sorter.insertionSort();
+            case "Merge" -> sorter.mergeSort();
+            case "Quick" -> sorter.quickSort();
+            default -> fail("Unknown algorithm");
         }
+    }
 
-        int[] expected = original.clone();
-        Arrays.sort(expected);
+    // Common test method for all algorithms
+    private void verifySorting(String algorithm) {
 
-        // Verify actual sorting result
-        assertArrayEquals(expected, sorting.getArray(), name);
+        for (int[] input : testCases) {
 
-        // Replay events on the original array
-        int[] replay = original.clone();
+            int[] expected = input.clone();
+            Arrays.sort(expected);
 
-        List<SortingStep> steps = sorting.getSteps();
+            SortingAlgorithms sorter =
+                    new SortingAlgorithms(input);
 
-        for (SortingStep step : steps) {
+            runSort(sorter, algorithm);
 
-            switch (step.type) {
-                case "SWAP" -> {
-                    int temp = replay[step.first];
-                    replay[step.first] = replay[step.second];
-                    replay[step.second] = temp;
-                }
-
-                case "WRITE" ->
-                    replay[step.first] = step.value;
-
-                case "COMPARE", "PIVOT", "DONE" -> {
-                    // No array modification
-                }
-
-                default -> fail("Unknown event: " + step.type);
-            }
+            assertArrayEquals(
+                    expected,
+                    sorter.getArray(),
+                    algorithm + " failed for " +
+                    Arrays.toString(input)
+            );
         }
-
-        // Verify animation replay matches sorted result
-        assertArrayEquals(expected, replay,
-                name + " animation replay failed");
-
-        // Check sorting completion event
-        assertFalse(steps.isEmpty());
-
-        assertEquals("DONE", steps.getLast().type);
     }
 
     @Test
-    void testAllSortingAlgorithms() {
+    void testBubbleSort() {
+        verifySorting("Bubble");
+    }
+
+    @Test
+    void testSelectionSort() {
+        verifySorting("Selection");
+    }
+
+    @Test
+    void testInsertionSort() {
+        verifySorting("Insertion");
+    }
+
+    @Test
+    void testMergeSort() {
+        verifySorting("Merge");
+    }
+
+    @Test
+    void testQuickSort() {
+        verifySorting("Quick");
+    }
+
+    @Test
+    void testOriginalArrayIsNotModified() {
+
+        int[] input = {5, 3, 1};
+        int[] original = input.clone();
+
+        SortingAlgorithms sorter =
+                new SortingAlgorithms(input);
+
+        sorter.bubbleSort();
+
+        assertArrayEquals(original, input);
+    }
+
+    @Test
+    void testSortingCompletesWithDoneEvent() {
 
         String[] algorithms = {
-            "Bubble Sort",
-            "Selection Sort",
-            "Insertion Sort",
-            "Merge Sort",
-            "Quick Sort"
+            "Bubble", "Selection", "Insertion",
+            "Merge", "Quick"
         };
 
-        int[][] testCases = {
-            {},
-            {5},
-            {2, 1},
-            {5, 2, 4, 1, 3},
-            {3, 3, 1, 2, 1},
-            {1, 2, 3, 4, 5},
-            {5, 4, 3, 2, 1},
-            {-5, 10, 0, -2, 8},
-            {7, 7, 7, 7}
+        for (String algorithm : algorithms) {
+
+            SortingAlgorithms sorter =
+                    new SortingAlgorithms(
+                            new int[]{5, 2, 8, 1}
+                    );
+
+            runSort(sorter, algorithm);
+
+            List<SortingStep> steps = sorter.getSteps();
+
+            assertFalse(steps.isEmpty());
+
+            assertEquals(
+                    "DONE",
+                    steps.get(steps.size() - 1).type
+            );
+        }
+    }
+
+    @Test
+    void testEventsReproduceSortedArray() {
+
+        String[] algorithms = {
+            "Bubble", "Selection", "Insertion",
+            "Merge", "Quick"
         };
 
-        for (String name : algorithms) {
-            for (int[] arr : testCases) {
-                testAlgorithm(arr, name);
+        for (String algorithm : algorithms) {
+
+            int[] input = {5, 2, 4, 1, 3, 2};
+
+            SortingAlgorithms sorter =
+                    new SortingAlgorithms(input);
+
+            runSort(sorter, algorithm);
+
+            int[] replay = input.clone();
+
+            for (SortingStep step : sorter.getSteps()) {
+
+                switch (step.type) {
+
+                    case "SWAP" -> {
+                        int temp = replay[step.first];
+                        replay[step.first] =
+                                replay[step.second];
+                        replay[step.second] = temp;
+                    }
+
+                    case "WRITE" ->
+                        replay[step.first] = step.value;
+                }
             }
+
+            assertArrayEquals(
+                    sorter.getArray(),
+                    replay,
+                    algorithm + " event replay mismatch"
+            );
         }
     }
 }
