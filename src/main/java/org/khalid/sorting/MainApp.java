@@ -24,11 +24,7 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-    // ---------- Colors ----------
-    private static final String BACKGROUND = "#0B1120";
-    private static final String PANEL = "#172338";
-    private static final String TEXT = "#F8FAFC";
-    private static final String MUTED = "#94A3B8";
+    // Bar colors remain in Java because they depend on sorting events.
     private static final String BLUE = "#60A5FA";
 
     // ---------- Array Data ----------
@@ -72,8 +68,7 @@ public class MainApp extends Application {
         // Step 1: Create main layout
         BorderPane root = new BorderPane();
 
-        root.setPadding(new Insets(18));
-        root.setStyle("-fx-background-color: " + BACKGROUND + ";");
+        root.getStyleClass().add("app-root");
 
         // Step 2: Build the application sections
         root.setTop(createHeader());
@@ -115,6 +110,10 @@ public class MainApp extends Application {
 
         // Step 4: Create Scene
         Scene scene = new Scene(root, 1280, 760);
+        // Stylesheet replaces the original inline JavaFX styling.
+        scene.getStylesheets().add(
+                MainApp.class.getResource("/style.css").toExternalForm()
+        );
 
         // Step 5: Configure Stage
         primaryStage.setTitle("Sorting Algorithm Visualizer");
@@ -146,30 +145,18 @@ public class MainApp extends Application {
     private HBox createHeader() {
 
         Label title = new Label("Sorting Visualizer");
-        title.setStyle(
-                "-fx-font-size: 26px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-text-fill: " + TEXT + ";"
-        );
+        title.getStyleClass().add("app-title");
 
         Label subtitle = new Label(
                 "Interactive Algorithm Learning Platform"
         );
 
-        subtitle.setStyle(
-                "-fx-text-fill: " + MUTED + ";" +
-                "-fx-font-size: 12px;"
-        );
+        subtitle.getStyleClass().add("app-subtitle");
 
         VBox heading = new VBox(5, title, subtitle);
 
         Label version = new Label("JavaFX 25 • Desktop");
-        version.setStyle(
-                "-fx-background-color: #243552;" +
-                "-fx-text-fill: #93C5FD;" +
-                "-fx-padding: 9 14;" +
-                "-fx-background-radius: 8;"
-        );
+        version.getStyleClass().add("version-badge");
 
         HBox header = new HBox(20, heading, version);
         header.setAlignment(Pos.CENTER_LEFT);
@@ -188,7 +175,7 @@ public class MainApp extends Application {
         VBox controls = new VBox(14);
         controls.setPrefWidth(230);
         controls.setMinWidth(220);
-        controls.setStyle(panelStyle());
+        controls.getStyleClass().add("panel");
 
         Label heading = headingLabel("Controls");
 
@@ -252,23 +239,23 @@ public class MainApp extends Application {
 
         // Buttons
         Button generateButton = createButton(
-                "Generate Array", "#2563EB"
+                "Generate Array", "generate-button"
         );
 
         startButton = createButton(
-                "Start Sorting", "#16A34A"
+                "Start Sorting", "start-button"
         );
 
         pauseButton = createButton(
-                "Pause", "#334155"
+                "Pause", "pause-button"
         );
 
         resumeButton = createButton(
-                "Resume", "#334155"
+                "Resume", "resume-button"
         );
 
         Button resetButton = createButton(
-                "Reset Array", "#475569"
+                "Reset Array", "reset-button"
         );
 
         // Pause and Resume become available during playback.
@@ -327,7 +314,7 @@ public class MainApp extends Application {
     private VBox createVisualization() {
 
         VBox visualization = new VBox(18);
-        visualization.setStyle(panelStyle());
+        visualization.getStyleClass().add("panel");
         visualization.setMinWidth(0);
 
         Label heading = headingLabel(
@@ -347,11 +334,7 @@ public class MainApp extends Application {
         chartArea = new StackPane(barsContainer);
 
         chartArea.setMinHeight(340);
-        chartArea.setStyle(
-                "-fx-background-color: #0F172A;" +
-                "-fx-background-radius: 12;" +
-                "-fx-padding: 20;"
-        );
+        chartArea.getStyleClass().add("chart-area");
 
         VBox.setVgrow(chartArea, Priority.ALWAYS);
 
@@ -387,7 +370,7 @@ public class MainApp extends Application {
 
         statistics.setPrefWidth(190);
         statistics.setMinWidth(180);
-        statistics.setStyle(panelStyle());
+        statistics.getStyleClass().add("panel");
 
         Label heading = headingLabel("Statistics");
 
@@ -436,10 +419,7 @@ public class MainApp extends Application {
 
         statusLabel = new Label("Status: Ready");
 
-        statusLabel.setStyle(
-                "-fx-text-fill: #22C55E;" +
-                "-fx-font-size: 13px;"
-        );
+        statusLabel.getStyleClass().add("status-label");
 
         Label framework = smallLabel("JavaFX Desktop");
 
@@ -451,7 +431,7 @@ public class MainApp extends Application {
         );
 
         statusBar.setAlignment(Pos.CENTER_LEFT);
-        statusBar.setStyle(panelStyle());
+        statusBar.getStyleClass().add("panel");
 
         return statusBar;
     }
@@ -614,21 +594,11 @@ public class MainApp extends Application {
     // REUSABLE UI HELPER METHODS
     // ==========================================
 
-    private String panelStyle() {
-        return "-fx-background-color: " + PANEL + ";" +
-               "-fx-background-radius: 14;" +
-               "-fx-padding: 18;";
-    }
-
     private Label headingLabel(String text) {
 
         Label label = new Label(text);
 
-        label.setStyle(
-                "-fx-text-fill: " + TEXT + ";" +
-                "-fx-font-size: 17px;" +
-                "-fx-font-weight: bold;"
-        );
+        label.getStyleClass().add("section-title");
 
         return label;
     }
@@ -637,10 +607,7 @@ public class MainApp extends Application {
 
         Label label = new Label(text);
 
-        label.setStyle(
-                "-fx-text-fill: " + MUTED + ";" +
-                "-fx-font-size: 12px;"
-        );
+        label.getStyleClass().add("small-label");
 
         return label;
     }
@@ -649,29 +616,19 @@ public class MainApp extends Application {
 
         Label label = new Label(text);
 
-        label.setStyle(
-                "-fx-text-fill: " + TEXT + ";" +
-                "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;"
-        );
+        label.getStyleClass().add("stat-value");
 
         return label;
     }
 
     private Button createButton(
-            String text, String color) {
+            String text, String buttonStyleClass) {
 
         Button button = new Button(text);
 
         button.setMaxWidth(Double.MAX_VALUE);
 
-        button.setStyle(
-                "-fx-background-color: " + color + ";" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;" +
-                "-fx-background-radius: 8;" +
-                "-fx-padding: 11;"
-        );
+        button.getStyleClass().addAll("action-button", buttonStyleClass);
 
         return button;
     }

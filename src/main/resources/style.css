@@ -1,0 +1,90 @@
+/* Sorting Visualizer - styles migrated from MainApp.java.
+   Intentionally preserves the existing appearance: no new theme, hover
+   effects, spacing changes, or control customizations are introduced. */
+
+/* Main background and outer padding */
+.app-root {
+    -fx-background-color: #0B1120;
+    -fx-padding: 18;
+}
+
+/* Header */
+.app-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F8FAFC;
+}
+
+.app-subtitle {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+}
+
+.version-badge {
+    -fx-background-color: #243552;
+    -fx-text-fill: #93C5FD;
+    -fx-padding: 9 14;
+    -fx-background-radius: 8;
+}
+
+/* Shared appearance for Controls, Visualization, Statistics, and Status */
+.panel {
+    -fx-background-color: #172338;
+    -fx-background-radius: 14;
+    -fx-padding: 18;
+}
+
+.section-title {
+    -fx-text-fill: #F8FAFC;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.small-label {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+}
+
+.stat-value {
+    -fx-text-fill: #F8FAFC;
+    -fx-font-size: 23px;
+    -fx-font-weight: bold;
+}
+
+/* Visualization panel interior */
+.chart-area {
+    -fx-background-color: #0F172A;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+}
+
+/* Action buttons: original colors, padding and corners */
+.action-button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 11;
+}
+
+.generate-button {
+    -fx-background-color: #2563EB;
+}
+
+.start-button {
+    -fx-background-color: #16A34A;
+}
+
+.pause-button,
+.resume-button {
+    -fx-background-color: #334155;
+}
+
+.reset-button {
+    -fx-background-color: #475569;
+}
+
+/* Bottom status message */
+.status-label {
+    -fx-text-fill: #22C55E;
+    -fx-font-size: 13px;
+}
