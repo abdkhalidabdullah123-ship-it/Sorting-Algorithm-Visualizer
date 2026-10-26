@@ -1,6 +1,8 @@
 package org.khalid.sorting;
 
 import java.util.Random;
+import javafx.application.Platform;
+import javafx.scene.layout.Pane;
 
 
 import javafx.application.Application;
@@ -44,7 +46,7 @@ public class MainApp extends Application {
     private Label stepsValueLabel;
 
     // ---------- GUI Components ----------
-    private final HBox barsContainer = new HBox(2);
+    private final Pane barsContainer = new Pane();
 
     private StackPane chartArea;
 
@@ -131,14 +133,19 @@ public class MainApp extends Application {
         // Step 6: Generate initial array
         generateArray();
 
-        // Update bar widths when the window is resized
-        chartArea.widthProperty().addListener(
+        // Redraw using the actual drawable Pane width after any resize.
+        barsContainer.widthProperty().addListener(
                 (obs, oldWidth, newWidth) -> renderBars()
+        );
+        barsContainer.heightProperty().addListener(
+                (obs, oldHeight, newHeight) -> renderBars()
         );
 
         // Step 7: Display window
         primaryStage.show();
 
+        // Refresh bars after the initial window is displayed
+        Platform.runLater(this::renderBars);
         // Initial button states
         updatePlaybackButtons(controller.getState());
     }
@@ -355,21 +362,19 @@ private StackPane createHeader() {
         description.setMaxWidth(Double.MAX_VALUE);
         description.setAlignment(Pos.CENTER);
 
-        // Container for array bars
-        barsContainer.setAlignment(Pos.BOTTOM_CENTER);
+    
+        // Container for array bars. StackPane allocates the usable width.
+        barsContainer.setMinWidth(0);
+        barsContainer.setPrefWidth(0);
+        barsContainer.setMaxWidth(Double.MAX_VALUE);
         barsContainer.setPrefHeight(280);
         barsContainer.setMaxHeight(280);
 
         // Chart area
-      
-            chartArea = new StackPane(barsContainer);
-
-            // Allow horizontal resizing
-            chartArea.setMinWidth(0);
-            barsContainer.setMinWidth(0);
-
-            chartArea.setMinHeight(340);
-            chartArea.getStyleClass().add("chart-area");
+        chartArea = new StackPane(barsContainer);
+        chartArea.setMinWidth(0);
+        chartArea.setMinHeight(340);
+        chartArea.getStyleClass().add("chart-area");
 
         VBox.setVgrow(chartArea, Priority.ALWAYS);
 
@@ -525,69 +530,46 @@ private void renderBars() {
         return;
     }
 
-    // ---------- STEP 1: CLEAR OLD BARS ----------
-    barsContainer.getChildren().clear();
-
-    // ---------- STEP 2: ARRAY SIZE ----------
+    // ---------- STEP 1: READ ACTUAL AVAILABLE SPACE ----------
     int count = displayedArray.length;
+    double availableWidth = barsContainer.getWidth();
+    double availableHeight = barsContainer.getHeight();
 
-    if (count == 0) {
+    // The Pane has no dimensions before the first JavaFX layout pass.
+    // The width listener and the initial Platform.runLater call draw it later.
+    if (count == 0 || availableWidth <= 0 || availableHeight <= 0) {
+        barsContainer.getChildren().clear();
         return;
     }
 
-    // ---------- STEP 3: AVAILABLE CHART WIDTH ----------
-    double availableWidth;
+    // ---------- STEP 2: FIT ALL BARS INSIDE THE PANE ----------
+    double gap = Math.min(2.0, availableWidth / (count * 5.0));
 
-    if (chartArea.getWidth() > 0) {
-
-        availableWidth = Math.max(
-                1.0,
-                chartArea.getWidth()
-                - chartArea.getInsets().getLeft()
-                - chartArea.getInsets().getRight()
-                - 8
-        );
-
-    } else {
-        availableWidth = 600;
-    }
-
-    // ---------- STEP 4: DYNAMIC BAR SPACING ----------
-    double gap = Math.min(
-            2.0,
-            availableWidth / (count * 5.0)
-    );
-
-    barsContainer.setSpacing(gap);
-
-    // ---------- STEP 5: DYNAMIC BAR WIDTH ----------
     double barWidth = Math.min(
             22.0,
             (availableWidth - gap * (count - 1)) / count
     );
 
-    // ---------- STEP 6: CONTAINER WIDTH ----------
-    double totalBarsWidth =
-            (barWidth * count) + (gap * (count - 1));
+    double totalBarsWidth = barWidth * count + gap * (count - 1);
+    double startX = Math.max(0.0, (availableWidth - totalBarsWidth) / 2.0);
 
-    barsContainer.setMinWidth(0);
-    barsContainer.setPrefWidth(totalBarsWidth);
-    barsContainer.setMaxWidth(totalBarsWidth);
+    // Pane does not automatically position its Rectangle children.
+    // We position each one ourselves, with the bottom aligned.
+    barsContainer.getChildren().clear();
 
-    // ---------- STEP 7: CREATE BARS ----------
-    for (int i = 0; i < displayedArray.length; i++) {
+    // ---------- STEP 3: CREATE POSITIONED BARS ----------
+    for (int i = 0; i < count; i++) {
 
         int value = displayedArray[i];
 
-        Rectangle bar = new Rectangle(
-                barWidth,
-                value * 2.6
-        );
+        Rectangle bar = new Rectangle(barWidth, value * 2.6);
+        bar.setX(startX + i * (barWidth + gap));
+        bar.setY(Math.max(0.0, availableHeight - bar.getHeight()));
 
         // Default color: Red for unsorted elements
         Color barColor = Color.web(UNSORTED_RED);
 
-        // ---------- STEP 8: SORTING HIGHLIGHTS ----------
+        // ---------- STEP 4: SORTING HIGHLIGHTS (UNCHANGED) ----------
         if (highlightedStep != null) {
 
             String type = highlightedStep.type;
@@ -619,26 +601,17 @@ private void renderBars() {
             }
         }
 
-        // ---------- STEP 9: APPLY BAR STYLE ----------
-        // Apply bar colors
+        // ---------- STEP 5: APPLY EXISTING STYLE & TOOLTIP ----------
         bar.setFill(barColor);
-
-        // Rounded corners
         bar.setArcWidth(4);
         bar.setArcHeight(4);
+        bar.getStyleClass().add("sorting-bar");
 
-// Apply CSS hover styling
-bar.getStyleClass().add("sorting-bar");
-
-        // ---------- STEP 10: TOOLTIP ----------
         Tooltip tooltip = new Tooltip(
                 "Index: " + i +
                 "\nValue: " + value
         );
-
         Tooltip.install(bar, tooltip);
-
-        // ---------- STEP 11: ADD BAR ----------
         barsContainer.getChildren().add(bar);
     }
 }
