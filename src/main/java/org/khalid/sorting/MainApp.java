@@ -1,7 +1,7 @@
-
 package org.khalid.sorting;
 
 import java.util.Random;
+
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -36,6 +36,16 @@ public class MainApp extends Application {
 
     private int[] originalArray;
     private int[] displayedArray;
+    // ---------- Controller and currently displayed event ----------
+    private SortingController controller;
+    private SortingStep highlightedStep;
+
+    // ---------- Live Statistics labels ----------
+    private Label comparisonsValueLabel;
+    private Label swapsValueLabel;
+    private Label writesValueLabel;
+    private Label pivotsValueLabel;
+    private Label stepsValueLabel;
 
     // ---------- GUI Components ----------
     private final HBox barsContainer = new HBox(4);
@@ -52,6 +62,10 @@ public class MainApp extends Application {
     private Slider sizeSlider;
     private Slider speedSlider;
 
+    private Button startButton;
+    private Button pauseButton;
+    private Button resumeButton;
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -67,6 +81,27 @@ public class MainApp extends Application {
         root.setCenter(createVisualization());
         root.setRight(createStatistics());
         root.setBottom(createStatusBar());
+
+        // Connect the controller to the graphical interface.
+        // Controller manages the Timeline; MainApp only draws its events.
+        controller = new SortingController(new SortingController.Listener() {
+            @Override
+            public void onProgress(int[] visibleArray, SortingStep step,
+                                   SortingStats stats, String message) {
+                if (visibleArray != null) {
+                    displayedArray = visibleArray;
+                }
+                highlightedStep = step;
+                updateStatistics(stats);
+                statusLabel.setText(message);
+                renderBars();
+            }
+
+            @Override
+            public void onStateChanged(SortingController.State state) {
+                updatePlaybackButtons(state);
+            }
+        });
 
         // Step 3: Set spacing between sections
         BorderPane.setMargin(root.getTop(),
@@ -99,6 +134,9 @@ public class MainApp extends Application {
 
         // Step 7: Display window
         primaryStage.show();
+
+        // Initial button states
+        updatePlaybackButtons(controller.getState());
     }
 
     // ==========================================
@@ -204,6 +242,11 @@ public class MainApp extends Application {
                             String.format("%.2fx",
                                     newValue.doubleValue())
                     );
+
+                    // Changing speed affects a running or paused Timeline.
+                    if (controller != null) {
+                        controller.setSpeed(newValue.doubleValue());
+                    }
                 }
         );
 
@@ -212,15 +255,15 @@ public class MainApp extends Application {
                 "Generate Array", "#2563EB"
         );
 
-        Button startButton = createButton(
+        startButton = createButton(
                 "Start Sorting", "#16A34A"
         );
 
-        Button pauseButton = createButton(
+        pauseButton = createButton(
                 "Pause", "#334155"
         );
 
-        Button resumeButton = createButton(
+        resumeButton = createButton(
                 "Resume", "#334155"
         );
 
@@ -228,7 +271,7 @@ public class MainApp extends Application {
                 "Reset Array", "#475569"
         );
 
-        // Animation controls will be enabled later
+        // Pause and Resume become available during playback.
         pauseButton.setDisable(true);
         resumeButton.setDisable(true);
 
@@ -238,10 +281,15 @@ public class MainApp extends Application {
         });
 
         startButton.setOnAction(event -> {
-            statusLabel.setText(
-                    algorithmBox.getValue() +
-                    " selected. Animation integration pending."
-            );
+            controller.start(originalArray, algorithmBox.getValue(), speedSlider.getValue());
+        });
+
+        pauseButton.setOnAction(event -> {
+            controller.pause();
+        });
+
+        resumeButton.setOnAction(event -> {
+            controller.resume();
         });
 
         resetButton.setOnAction(event -> {
@@ -314,6 +362,7 @@ public class MainApp extends Application {
                 createLegend("#60A5FA", "Normal"),
                 createLegend("#FBBF24", "Compare"),
                 createLegend("#F87171", "Swap"),
+                createLegend("#38BDF8", "Write"),
                 createLegend("#C084FC", "Pivot"),
                 createLegend("#22C55E", "Sorted")
         );
@@ -343,13 +392,19 @@ public class MainApp extends Application {
         Label heading = headingLabel("Statistics");
 
         Label comparisons = smallLabel("Comparisons");
-        Label comparisonsValue = valueLabel("0");
+        comparisonsValueLabel = valueLabel("0");
 
         Label swaps = smallLabel("Swaps");
-        Label swapsValue = valueLabel("0");
+        swapsValueLabel = valueLabel("0");
 
         Label writes = smallLabel("Writes");
-        Label writesValue = valueLabel("0");
+        writesValueLabel = valueLabel("0");
+
+        Label pivots = smallLabel("Pivots");
+        pivotsValueLabel = valueLabel("0");
+
+        Label steps = smallLabel("Operations");
+        stepsValueLabel = valueLabel("0");
 
         Label elements = smallLabel("Elements");
         elementsValueLabel = valueLabel("24");
@@ -357,11 +412,15 @@ public class MainApp extends Application {
         statistics.getChildren().addAll(
                 heading,
                 comparisons,
-                comparisonsValue,
+                comparisonsValueLabel,
                 swaps,
-                swapsValue,
+                swapsValueLabel,
                 writes,
-                writesValue,
+                writesValueLabel,
+                pivots,
+                pivotsValueLabel,
+                steps,
+                stepsValueLabel,
                 elements,
                 elementsValueLabel
         );
@@ -403,6 +462,9 @@ public class MainApp extends Application {
 
     private void generateArray() {
 
+        // Cancel any old animation before replacing the array.
+        controller.reset();
+
         int size = (int) Math.round(sizeSlider.getValue());
 
         originalArray = new int[size];
@@ -413,6 +475,7 @@ public class MainApp extends Application {
         }
 
         displayedArray = originalArray.clone();
+        highlightedStep = null;
 
         elementsValueLabel.setText(
                 String.valueOf(size)
@@ -463,7 +526,29 @@ public class MainApp extends Application {
                     value * 2.6
             );
 
-            bar.setFill(Color.web(BLUE));
+            // Default color: blue
+            Color barColor = Color.web(BLUE);
+
+            // Highlight currently processed event, without changing sort logic.
+            if (highlightedStep != null) {
+                String type = highlightedStep.type;
+                boolean first = (i == highlightedStep.first);
+                boolean second = (i == highlightedStep.second);
+
+                if ("DONE".equals(type)) {
+                    barColor = Color.web("#22C55E");
+                } else if ("COMPARE".equals(type) && (first || second)) {
+                    barColor = Color.web("#FBBF24");
+                } else if ("SWAP".equals(type) && (first || second)) {
+                    barColor = Color.web("#F87171");
+                } else if ("WRITE".equals(type) && first) {
+                    barColor = Color.web("#38BDF8");
+                } else if ("PIVOT".equals(type) && first) {
+                    barColor = Color.web("#C084FC");
+                }
+            }
+
+            bar.setFill(barColor);
             bar.setArcWidth(4);
             bar.setArcHeight(4);
 
@@ -474,9 +559,40 @@ public class MainApp extends Application {
             );
 
             Tooltip.install(bar, tooltip);
-
             barsContainer.getChildren().add(bar);
         }
+    }
+
+    // ==========================================
+    // CONTROLLER STATE -> BUTTON AVAILABILITY
+    // ==========================================
+
+    private void updatePlaybackButtons(SortingController.State state) {
+        if (startButton == null || pauseButton == null || resumeButton == null) {
+            return;
+        }
+        startButton.setDisable(state != SortingController.State.IDLE);
+        pauseButton.setDisable(state != SortingController.State.RUNNING);
+        resumeButton.setDisable(state != SortingController.State.PAUSED);
+
+        // Avoid changing inputs in the middle of an animation.
+        algorithmBox.setDisable(state != SortingController.State.IDLE);
+        sizeSlider.setDisable(state != SortingController.State.IDLE);
+    }
+
+    // ==========================================
+    // LIVE STATISTICS -> LABELS
+    // ==========================================
+
+    private void updateStatistics(SortingStats stats) {
+        if (comparisonsValueLabel == null) {
+            return;
+        }
+        comparisonsValueLabel.setText(String.valueOf(stats.getComparisons()));
+        swapsValueLabel.setText(String.valueOf(stats.getSwaps()));
+        writesValueLabel.setText(String.valueOf(stats.getWrites()));
+        pivotsValueLabel.setText(String.valueOf(stats.getPivots()));
+        stepsValueLabel.setText(String.valueOf(stats.getSteps()));
     }
 
     // ==========================================
@@ -484,18 +600,14 @@ public class MainApp extends Application {
     // ==========================================
 
     private void resetArray() {
-
         if (originalArray == null) {
             return;
         }
-
+        controller.reset(); // Cancels Timeline and resets SortingStats.
         displayedArray = originalArray.clone();
-
+        highlightedStep = null;
         renderBars();
-
-        statusLabel.setText(
-                "Status: Array Reset"
-        );
+        statusLabel.setText("Status: Array Reset");
     }
 
     // ==========================================
@@ -580,6 +692,18 @@ public class MainApp extends Application {
         item.setAlignment(Pos.CENTER_LEFT);
 
         return item;
+    }
+
+    // ==========================================
+    // APPLICATION SHUTDOWN
+    // ==========================================
+
+    @Override
+    public void stop() {
+        // Ensure no Timeline keeps running after the window is closed.
+        if (controller != null) {
+            controller.stop();
+        }
     }
 
     // ==========================================
